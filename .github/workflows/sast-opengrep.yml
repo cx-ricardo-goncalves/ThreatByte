@@ -22,7 +22,7 @@ jobs:
 
       - name: Run OpenGrep scan and generate SARIF
         run: |
-          ./opengrep scan . --config auto --sarif opengrep-results.sarif --metrics on
+          ./opengrep scan . --config auto --metrics on --sarif-output=opengrep-results.sarif
 
       - name: Upload SARIF to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v2
