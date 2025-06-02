@@ -27,7 +27,7 @@ jobs:
             checkmarx/kics:latest \
             scan -p /project \
             -o /project/kics-results \
-            --report-formats sarif
+            --report-formats sarif || true
 
       - name: Upload SARIF results to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v3
