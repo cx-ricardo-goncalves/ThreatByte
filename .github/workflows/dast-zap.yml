@@ -36,12 +36,15 @@ jobs:
             sleep 2
           done
 
-      - name: Run ZAP Baseline Scan
+      - name: Create folder for ZAP output
+        run: mkdir zap-results
+
+      - name: Run ZAP Baseline Scan with podman
         run: |
-          mkdir zap-results
+          sudo apt-get update && sudo apt-get install -y podman
           podman run --rm --add-host=host.docker.internal:host-gateway \
             -v ${{ github.workspace }}/zap-results:/zap/wrk/:Z \
-            zaproxy/zap-stable zap-baseline.py \
+            docker.io/zaproxy/zap-stable zap-baseline.py \
               -t http://host.docker.internal:5000 \
               -r zap-report.html \
               -J zap-report.json \
