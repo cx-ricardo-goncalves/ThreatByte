@@ -32,7 +32,7 @@ jobs:
             checkmarx/kics:v2.1.9-ubi8 \
             scan -p /project \
             -o /project/kics-results \
-            --disable-full-description --exclude-severities info --report-formats sarif || true
+            --disable-full-descriptions --exclude-severities info --report-formats sarif || true
 
       - name: Upload SARIF results to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v3
