@@ -30,6 +30,11 @@ jobs:
           docker run --rm \
             -v ${{ github.workspace }}:/project \
             checkmarx/kics:v2.1.9-ubi8 \
-            scan -p /project \
+            scan -p /project/Dockerfile \
             -o /project/kics-results \
-            --exclude-severities info || true
+            --exclude-severities info --report-formats sarif || true
+        
+      - name: Upload SARIF results to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: kics-results/results.sarif
