@@ -48,7 +48,7 @@ jobs:
               -a
 
       - name: Upload ZAP reports as artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: zap-dast-reports
           path: zap-results/
