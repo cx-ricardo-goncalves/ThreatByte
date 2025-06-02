@@ -41,15 +41,15 @@ jobs:
 
       - name: Run ZAP Baseline Scan via Docker
         run: |
-          mkdir -p zap-results
           docker run --rm \
             --network=host \
-            -v ${{ github.workspace }}/zap-results:/zap/wrk:rw \
+            -v /tmp/zap:/zap/wrk:rw \
             zaproxy/zap-stable zap-baseline.py \
               -t http://localhost:5000 \
-              -r zap-report.html \
-              -J zap-report.json \
+              -r /zap/wrk/zap-report.html \
+              -J /zap/wrk/zap-report.json \
               -a
+
 
       - name: Upload ZAP reports
         uses: actions/upload-artifact@v4
