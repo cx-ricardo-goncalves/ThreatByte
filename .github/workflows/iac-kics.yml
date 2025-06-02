@@ -20,15 +20,19 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v3
 
-      - name: Run KICS with SARIF output
+      - name: Prepare writable output folder
         run: |
           mkdir -p kics-results
+          chmod -R 777 kics-results  # allow container to write to host
+
+      - name: Run KICS with SARIF output
+        run: |
           docker run --rm \
             -v ${{ github.workspace }}:/project \
             checkmarx/kics:v2.1.9-ubi8 \
             scan -p /project \
             -o /project/kics-results \
-            --report-formats sarif || true
+            --report-formats sarif --exclude-severities info || true
 
       - name: Upload SARIF results to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v3
