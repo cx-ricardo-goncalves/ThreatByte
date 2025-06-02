@@ -4,6 +4,12 @@
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/)
 [![Docker](https://img.shields.io/badge/Docker-Available-blue)](https://www.docker.com/)
 
+![OpenGrep SAST](https://github.com/anotherik/ThreatByte/actions/workflows/sast-opengrep.yml/badge.svg?branch=main)
+![Trivy SCA](https://github.com/anotherik/ThreatByte/actions/workflows/sca-trivy.yml/badge.svg?branch=main)
+![KICS IaC Scan](https://github.com/anotherik/ThreatByte/actions/workflows/iac-kics.yml/badge.svg?branch=main)
+![ZAP DAST Scan](https://github.com/anotherik/ThreatByte/actions/workflows/dast-zap.yml/badge.svg?branch=main)
+
+
 ThreatByte is a deliberately vulnerable web application designed to demonstrate some Web and API security risks. It serves as a learning platform for security professionals and developers to explore common vulnerabilities in a controlled environment.
 
 ## 🚀 Features
