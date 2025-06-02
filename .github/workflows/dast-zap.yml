@@ -34,25 +34,22 @@ jobs:
 
       - name: Start ThreatByte app
         run: |
-          nohup python app.py &
+          nohup python ../app.py &
           sleep 10
 
-      - name: Run ZAP Baseline Scan with SARIF output
+      - name: Run ZAP Baseline Scan
         run: |
-          podman run --rm \
-            --add-host=host.docker.internal:host-gateway \
-            -v ${{ github.workspace }}:/zap/wrk/:Z \
+          mkdir zap-results
+          podman run --rm --add-host=host.docker.internal:host-gateway \
+            -v ${{ github.workspace }}/zap-results:/zap/wrk/:Z \
             zaproxy/zap-stable zap-baseline.py \
-            -t http://host.docker.internal:5000 \
-            -g gen.conf \
-            -r zap-report.html \
-            -J zap-report.json \
-            -o zap-out \
-            -a \
-            -z "-addoninstall reportgen -addonupdate" \
-            -f sarif -w zap-results.sarif
+              -t http://host.docker.internal:5000 \
+              -r zap-report.html \
+              -J zap-report.json \
+              -a
 
-      - name: Upload SARIF to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
+      - name: Upload ZAP reports as artifacts
+        uses: actions/upload-artifact@v3
         with:
-          sarif_file: zap-results.sarif
+          name: zap-dast-reports
+          path: zap-results/
