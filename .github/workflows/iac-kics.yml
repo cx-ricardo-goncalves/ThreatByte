@@ -24,7 +24,7 @@ jobs:
         run: |
           docker run --rm \
             -v ${{ github.workspace }}:/project \
-            checkmarx/kics:kics:v2.1.9-ubi8 \
+            checkmarx/kics:v2.1.9-ubi8 \
             scan -p /project \
             -o /project/kics-results \
             --report-formats sarif || true
