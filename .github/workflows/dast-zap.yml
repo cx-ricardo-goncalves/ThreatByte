@@ -1,4 +1,4 @@
-name: DAST - ZAP Baseline Scan
+name: DAST - ZAP Scan
 
 on:
   push:
@@ -8,50 +8,56 @@ on:
 
 jobs:
   zap_scan:
-    name: Run ZAP DAST Scan
     runs-on: ubuntu-latest
 
+    services:
+      threatbyte:
+        image: python:3.11-slim
+        options: >-
+          --health-cmd="curl -s http://localhost:5000 || exit 1"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+        volumes:
+          - ./:/app
+        working-directory: /app
+        ports:
+          - 5000:5000
+        env:
+          FLASK_APP: app.py
+        command: /bin/bash -c "pip install -r requirements.txt && python db/create_db_tables.py && python app.py"
+
     steps:
-      - name: Checkout code
+      - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Set up Python environment
+      - name: Wait for ThreatByte to be healthy
         run: |
-          python3 -m venv venv
-          source venv/bin/activate
-          pip install -r requirements.txt
-          python db/create_db_tables.py &
-
-      - name: Start ThreatByte App
-        run: |
-          nohup python app.py > output.log 2>&1 &
-
-      - name: Wait for app to become available
-        run: |
+          echo "Waiting for app to be ready..."
           for i in {1..30}; do
             if curl -s http://localhost:5000 > /dev/null; then
               echo "App is up!"
               break
             fi
-            sleep 2
+            sleep 3
           done
 
-      - name: Create folder for ZAP output
-        run: mkdir zap-results
+      - name: Create output folder
+        run: mkdir -p zap-results
 
-      - name: Run ZAP Baseline Scan with podman
+      - name: Run ZAP Baseline Scan
         run: |
-          sudo apt-get update && sudo apt-get install -y podman
-          podman run --rm --add-host=host.docker.internal:host-gateway \
-            -v ${{ github.workspace }}/zap-results:/zap/wrk/:Z \
-            docker.io/zaproxy/zap-stable zap-baseline.py \
-              -t http://host.docker.internal:5000 \
+          docker run --rm \
+            --network="host" \
+            -v ${{ github.workspace }}/zap-results:/zap/wrk/:rw \
+            zaproxy/zap-stable zap-baseline.py \
+              -t http://localhost:5000 \
               -r zap-report.html \
               -J zap-report.json \
               -a
 
-      - name: Upload ZAP reports as artifacts
-        uses: actions/upload-artifact@v4
+      - name: Upload ZAP report artifact
+        uses: actions/upload-artifact@v3
         with:
-          name: zap-dast-reports
-          path: zap-results/
+          name: zap-dast-report
+          path: zap-results/zap-report.*
