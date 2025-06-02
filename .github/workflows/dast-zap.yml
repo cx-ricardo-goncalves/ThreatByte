@@ -2,40 +2,39 @@ name: DAST - ZAP Baseline Scan
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
-
-permissions:
-  contents: read
-  security-events: write
+    branches: [main]
 
 jobs:
   zap_scan:
-    name: Run OWASP ZAP DAST
+    name: Run ZAP DAST Scan
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source code
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
-
-      - name: Install Python dependencies
+      - name: Set up Python environment
         run: |
-          python -m pip install --upgrade pip
+          python3 -m venv venv
+          source venv/bin/activate
           pip install -r requirements.txt
+          python db/create_db_tables.py &
 
-      - name: Prepare ThreatByte DB
-        run: python db/create_db_tables.py
-
-      - name: Start ThreatByte app
+      - name: Start ThreatByte App
         run: |
-          nohup python ../app.py &
-          sleep 10
+          nohup python app.py > output.log 2>&1 &
+
+      - name: Wait for app to become available
+        run: |
+          for i in {1..30}; do
+            if curl -s http://localhost:5000 > /dev/null; then
+              echo "App is up!"
+              break
+            fi
+            sleep 2
+          done
 
       - name: Run ZAP Baseline Scan
         run: |
